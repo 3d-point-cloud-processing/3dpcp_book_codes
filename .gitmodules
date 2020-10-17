@@ -1,0 +1,3 @@
+[submodule "3rdparty/Open3D"]
+	path = 3rdparty/Open3D
+	url = https://github.com/intel-isl/Open3D
