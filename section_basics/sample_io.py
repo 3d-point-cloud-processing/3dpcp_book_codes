@@ -3,9 +3,11 @@ import struct
 
 with open(sys.argv[1], 'rb') as f:
     # read header
-    for i in range(10): # assume the number of header lines is 10
+    while True:
         line = f.readline()
         print (line)
+        if b'end_header' in line:
+            break
         if b'vertex ' in line:
             vnum = int(line.split(b' ')[-1]) # num of vertices
         if b'face ' in line:
