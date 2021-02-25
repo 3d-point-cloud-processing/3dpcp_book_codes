@@ -4,12 +4,12 @@ import numpy as np
 
 filename = sys.argv[1]
 print("Loading a point cloud from", filename)
-pcd = o3d.io.read_point_cloud(filename)
 mesh = o3d.io.read_triangle_mesh(filename)
-print(pcd)
 print(mesh)
 o3d.visualization.draw_geometries([mesh])
 
+pcd = o3d.geometry.PointCloud()
+pcd.points = mesh.vertices
 pcd.estimate_normals(
     search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=10.0, max_nn=10))
 
