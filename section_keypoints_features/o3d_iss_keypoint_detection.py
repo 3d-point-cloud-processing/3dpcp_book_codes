@@ -13,6 +13,7 @@ o3d.geometry.keypoint.compute_iss_keypoints(pcd,
                                             non_max_radius=0.005,
                                             gamma_21=0.5,
                                             gamma_32=0.5)
+print(keypoints)
 
 pcd.estimate_normals(
     search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.01, max_nn=10))
