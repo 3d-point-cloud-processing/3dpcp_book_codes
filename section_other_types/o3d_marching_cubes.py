@@ -31,3 +31,12 @@ o3d.visualization.draw_geometries([mesh],
                                   lookat=[2.0712, 2.0312, 1.7251],
                                   up=[-0.0558, -0.9809, 0.1864],
                                   zoom=0.47)
+
+print("Extract a point cloud from the mesh and visualize it.")
+pcd = mesh.sample_points_uniformly(number_of_points=10000)
+o3d.visualization.draw_geometries([pcd],
+                                  front=[0.5297, -0.1873, -0.8272],
+                                  lookat=[2.0712, 2.0312, 1.7251],
+                                  up=[-0.0558, -0.9809, 0.1864],
+                                  zoom=0.47)
+

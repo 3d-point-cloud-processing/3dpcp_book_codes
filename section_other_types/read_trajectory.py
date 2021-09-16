@@ -18,7 +18,7 @@ def read_trajectory(filename):
             mat = np.zeros(shape=(4, 4))
             for i in range(4):
                 matstr = f.readline()
-                mat[i, :] = np.fromstring(matstr, dtype=float, sep=' \t')
+                mat[i] = np.fromstring(matstr, dtype=float, sep=' \t')
             traj.append(CameraPose(metadata, mat))
             metastr = f.readline()
     return traj
