@@ -47,7 +47,10 @@ def draw_registration_result( source, target, transformation ):
         temp = copy.deepcopy(s)
         pcds.append( temp.transform(transformation) )
     pcds += target
-    o3d.visualization.draw_geometries(pcds)
+    o3d.visualization.draw_geometries(pcds, zoom=0.3199,
+			                          front = [0.024, -0.225, -0.973],
+			                          lookat = [0.488, 1.722, 1.556],
+			                          up = [0.047, -0.972, 0.226])
 
 
 def keypoint_and_feature_extraction( pcd, voxel_size ):
@@ -67,70 +70,72 @@ def keypoint_and_feature_extraction( pcd, voxel_size ):
 	return keypoints, feature
 
 
+if __name__ == "__main__":
+    #データ読み込み
+    filename1 = sys.argv[1]
+    filename2 = sys.argv[2]
+    source = o3d.io.read_point_cloud(filename1)
+    target = o3d.io.read_point_cloud(filename2)
 
-#データ読み込み
-filename1 = sys.argv[1]
-filename2 = sys.argv[2]
-source = o3d.io.read_point_cloud(filename1)
-target = o3d.io.read_point_cloud(filename2)
+    source.paint_uniform_color([0.5,0.5,1])
+    target.paint_uniform_color([1,0.5,0.5])
+    initial_trans = np.identity(4)
+    initial_trans[0,3] = -3.0
+    draw_registration_result([source], [target], initial_trans)
 
-source.paint_uniform_color([0.5,0.5,1])
-target.paint_uniform_color([1,0.5,0.5])
-initial_trans = np.identity(4)
-initial_trans[0,3] = -3.0
-draw_registration_result([source], [target], initial_trans)
+    # 特徴量記述
+    voxel_size = 0.1
+    s_kp, s_feature = keypoint_and_feature_extraction( source, voxel_size )
+    t_kp, t_feature = keypoint_and_feature_extraction( target, voxel_size )
 
-# 特徴量記述
-voxel_size = 0.1
-s_kp, s_feature = keypoint_and_feature_extraction( source, voxel_size )
-t_kp, t_feature = keypoint_and_feature_extraction( target, voxel_size )
+    s_kp.paint_uniform_color([0,1,0])
+    t_kp.paint_uniform_color([0,1,0])
+    draw_registration_result([source,s_kp], [target,t_kp], initial_trans)
 
-s_kp.paint_uniform_color([0,1,0])
-t_kp.paint_uniform_color([0,1,0])
-draw_registration_result([source,s_kp], [target,t_kp], initial_trans)
+    np_s_feature = s_feature.data.T
+    np_t_feature = t_feature.data.T
 
-np_s_feature = s_feature.data.T
-np_t_feature = t_feature.data.T
+    # 対応点探索
+    corrs = o3d.utility.Vector2iVector()
+    threshold = 0.9
+    for i,feat in enumerate(np_s_feature):
+        # source側の特定の特徴量とtarget側の全特徴量間のノルムを計算
+        distance = np.linalg.norm( np_t_feature - feat, axis=1 )
+        nearest_idx = np.argmin(distance)
+        dist_order = np.argsort(distance)
+        ratio = distance[dist_order[0]] / distance[dist_order[1]]
+        if ratio < threshold:
+            corr = np.array( [[i],[nearest_idx]], np.int32 )
+            corrs.append( corr )
 
-# 対応点探索
-corrs = o3d.utility.Vector2iVector()
-threshold = 0.9
-for i,feat in enumerate(np_s_feature):
-	# source側の特定の特徴量とtarget側の全特徴量間のノルムを計算
-	distance = np.linalg.norm( np_t_feature - feat, axis=1 )
-	nearest_idx = np.argmin(distance)
-	dist_order = np.argsort(distance)
-	ratio = distance[dist_order[0]] / distance[dist_order[1]]
-	if ratio < threshold:
-		corr = np.array( [[i],[nearest_idx]], np.int32 )
-		corrs.append( corr )
-
-print('対応点セットの数：', (len(corrs)) )
+    print('対応点セットの数：', (len(corrs)) )
 
 
-# 姿勢計算
-## 全点利用
-line_set = create_lineset_from_correspondences( corrs, s_kp, t_kp, initial_trans )
-draw_registration_result([source,s_kp], [target,t_kp, line_set], initial_trans)
+    # 姿勢計算
+    ## 全点利用
+    print('全点利用による姿勢計算' )
+    line_set = create_lineset_from_correspondences( corrs, s_kp, t_kp, initial_trans )
+    draw_registration_result([source,s_kp], [target,t_kp, line_set], initial_trans)
 
-trans_ptp = o3d.pipelines.registration.TransformationEstimationPointToPoint(False)
-trans_all = trans_ptp.compute_transformation( s_kp, t_kp, corrs )
-draw_registration_result([source], [target], trans_all )
+    trans_ptp = o3d.pipelines.registration.TransformationEstimationPointToPoint(False)
+    trans_all = trans_ptp.compute_transformation( s_kp, t_kp, corrs )
+    draw_registration_result([source], [target], trans_all )
 
-## RANSAC利用
-distance_threshold = voxel_size*1.5
-result = o3d.pipelines.registration.registration_ransac_based_on_correspondence(
-        s_kp, t_kp, corrs,
-        distance_threshold,
-        o3d.pipelines.registration.TransformationEstimationPointToPoint(False),
-        ransac_n = 3, 
-        checkers = [
-            o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
-            o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
-        ], 
-        criteria = o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999)
-        )
+    ## RANSAC利用
+    print('RANSACによる姿勢計算' )
+    draw_registration_result([source,s_kp], [target,t_kp, line_set], initial_trans)
+    distance_threshold = voxel_size*1.5
+    result = o3d.pipelines.registration.registration_ransac_based_on_correspondence(
+            s_kp, t_kp, corrs,
+            distance_threshold,
+            o3d.pipelines.registration.TransformationEstimationPointToPoint(False),
+            ransac_n = 3, 
+            checkers = [
+                o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.9),
+                o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
+            ], 
+            criteria = o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999)
+            )
 
-line_set = create_lineset_from_correspondences( result.correspondence_set, s_kp, t_kp, initial_trans )
-draw_registration_result([source,s_kp], [target,t_kp, line_set], initial_trans)
-draw_registration_result([source], [target], result.transformation)
+    line_set = create_lineset_from_correspondences( result.correspondence_set, s_kp, t_kp, initial_trans )
+    draw_registration_result([source], [target], result.transformation)
