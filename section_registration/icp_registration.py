@@ -1,7 +1,8 @@
-import open3d as o3d
+import time
 import copy
 import numpy as np
 import numpy.linalg as LA
+import open3d as o3d
 
 class ICPRegistration:
     # input source, target
@@ -12,6 +13,7 @@ class ICPRegistration:
         
         self.pcds = []
         self.d = []
+        self.closest_indices = []
         self.final_trans = np.identity(4)
         self.n_iteration = 30
         self.th_distance = 0.001
@@ -42,6 +44,7 @@ class ICPRegistration:
             distance.append(d[0])
 
         np_pcd_y = self.np_pcd_t[idx_list]
+        self.closest_indices.append( idx_list )
         self.d.append( np.sqrt(np.mean(np.array(distance))) )
         return np_pcd_y.copy()
     
@@ -115,3 +118,52 @@ class ICPRegistration:
                         q[0]**2+q[3]**2-q[1]**2-q[2]**2]]
                       )
         return rot
+
+
+def get_correspondence_lines( pcd_s, pcd_t, idx_list ):
+    
+    # make point cloud pair
+    np_pcd_s = np.asarray(pcd_s.points)
+    np_pcd_t = np.asarray(pcd_t.points)
+    np_pcd_pair = np.concatenate((np_pcd_s,np_pcd_t))
+
+    # choose pairing ids
+    lines = list()
+    n_points = len(pcd_s.points)
+    for i in range(n_points):
+        lines.append([i,n_points+idx_list[i]])
+
+    # make lineset    
+    line_set = o3d.geometry.LineSet(
+        points=o3d.utility.Vector3dVector(np_pcd_pair),
+        lines=o3d.utility.Vector2iVector(lines),
+    )
+    return line_set
+
+def visualize_icp_progress( reg ):
+
+    pcds = reg.pcds
+    indices = reg.closest_indices
+    pcd_t = reg.pcd_t
+
+    cnt = 0
+    pcd = o3d.geometry.PointCloud()
+    line_set = o3d.geometry.LineSet()
+    def reg( vis ):
+        nonlocal cnt
+        
+        pcd.points = pcds[cnt].points
+        pcd.paint_uniform_color([1.0,0.0,0.0])
+        lines = get_correspondence_lines( pcds[cnt], pcd_t, indices[cnt] )
+        line_set.lines = lines.lines
+        line_set.points = lines.points
+        vis.update_geometry( pcd )
+        vis.update_geometry( line_set )
+        
+        cnt+=1
+        time.sleep(0.3)
+        if  len(pcds)-1 <= cnt:
+            cnt = 0
+    
+    o3d.visualization.draw_geometries_with_animation_callback([pcd, pcd_t, line_set], 
+                                                              reg, width=640, height=500)

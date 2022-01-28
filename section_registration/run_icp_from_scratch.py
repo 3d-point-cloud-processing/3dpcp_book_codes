@@ -1,9 +1,11 @@
 # 必要なパッケージの読み込み
-import open3d as o3d
+import sys
 import numpy as np
 import numpy.linalg as LA
+import open3d as o3d
 
 from icp_registration import ICPRegistration
+from icp_registration import visualize_icp_progress
 
 pcd1 = o3d.io.read_point_cloud( "../data/bun000.pcd" )
 pcd2 = o3d.io.read_point_cloud( "../data/bun045.pcd" )
@@ -28,3 +30,6 @@ print("Final transformation \n", reg.final_trans )
 
 pcd_reg.paint_uniform_color([1.0,0.0,0.0])
 o3d.visualization.draw_geometries([pcd_t, pcd_reg] )
+
+# ICPの実行の様子の可視化
+visualize_icp_progress( reg )
