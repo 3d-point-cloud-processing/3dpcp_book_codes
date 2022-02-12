@@ -1,6 +1,14 @@
-import sys
+import sys, os
 import open3d as o3d
 import numpy as np
+
+dirname = "rgbd-dataset"
+classes = ["apple", "banana", "camera"]
+url="https://rgbd-dataset.cs.washington.edu/dataset/rgbd-dataset_pcd_ascii/"
+for i in range(len(classes)):
+    if not os.path.exists(dirname + "/" + classes[i]):
+        os.system("wget " + url + classes[i] + "_1.tar")
+        os.system("tar xvf " + classes[i] + "_1.tar")
 
 def extract_fpfh( filename ):
     print (" ", filename)
@@ -13,14 +21,10 @@ def extract_fpfh( filename ):
     sum_fpfh = np.sum(np.array(fpfh.data),1)
     return( sum_fpfh / np.linalg.norm(sum_fpfh) )
 
-# main
+# Extract features
 nsamp = 100
-dirname = "rgbd-dataset"
-classes = ["apple", "banana", "camera"]
 feat_train = np.zeros( (len(classes), nsamp, 33) )
 feat_test = np.zeros( (len(classes), nsamp, 33) )
-
-# Extract features
 for i in range(len(classes)):
     print ("Extracting train features in " + classes[i] + "...")
     for n in range(nsamp):
