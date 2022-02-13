@@ -31,7 +31,8 @@ ROTATION_RADIAN_PER_PIXEL = 0.003
 def rotate_view(vis):
     global i
     if i >= vertices.shape[0]:
-        exit()
+        vis.close()
+        return False
     vis.reset_view_point(True)
     ctr = vis.get_view_control()
     az = np.arctan2(vertices[i,1], vertices[i,0]) 
