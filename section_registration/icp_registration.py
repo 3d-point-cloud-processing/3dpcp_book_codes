@@ -201,8 +201,6 @@ class ICPRegistration_PointToPlane:
             self.final_trans = np.dot(transform,self.final_trans)
             self.pcds.append(copy.deepcopy(self.pcd_s))
             # Step 4.
-            if self.d[-1] < self.th_distance:
-                break
             if ((2<i) and (self.th_ratio < self.d[-1]/self.d[-2])) or (self.d[-1] < self.th_distance):
                 break
         
