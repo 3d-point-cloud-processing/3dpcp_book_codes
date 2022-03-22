@@ -59,9 +59,9 @@ def keypoint_and_feature_extraction( pcd, voxel_size ):
 
 	viewpoint = np.array([0.,0.,0.], dtype='float64')
 	radius_normal = 2.0*voxel_size
-	pcd.estimate_normals(
+	keypoints.estimate_normals(
 		o3d.geometry.KDTreeSearchParamHybrid(radius=radius_normal, max_nn=30))
-	pcd.orient_normals_towards_camera_location( viewpoint )
+	keypoints.orient_normals_towards_camera_location( viewpoint )
 
 	radius_feature = 5.0*voxel_size
 	feature = o3d.pipelines.registration.compute_fpfh_feature(
