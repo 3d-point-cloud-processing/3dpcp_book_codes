@@ -49,7 +49,7 @@ def EvaluateSphereCoefficient( pcd, coeff, distance_th=0.01 ):
     
     dist = np.abs( np.linalg.norm( pcd - coeff[:3], axis=1 ) - coeff[3] )
     n_inlier = np.sum(dist<distance_th)
-    if n_inlier is not 0:
+    if n_inlier != 0:
         fitness = n_inlier / pcd.shape[0]
         inlier_dist = np.sum((dist<distance_th)*dist)/n_inlier
         inliers = np.where(dist<distance_th)[0]
