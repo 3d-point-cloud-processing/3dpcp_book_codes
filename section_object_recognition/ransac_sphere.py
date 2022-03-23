@@ -73,7 +73,7 @@ if __name__ == "__main__":
     best_fitness = 0 # モデルの当てはめの良さ．インライア点数/全点数
     best_inlier_dist = 10000.0 #インライア点の平均距離
     best_inliers = None # 元の点群におけるインライアのインデクス
-    best_coeff = None # モデルパラメータ
+    best_coeff = np.zeros(4) # モデルパラメータ
 
     for n in range(num_iterations):
         c_id = np.random.choice( np_pcd.shape[0], 4, replace=False )
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             best_coeff = coeff
             print(f"Update: Fitness = {best_fitness:.4f}, Inlier_dist = {best_inlier_dist:.4f}")
 
-    if best_coeff != None:
+    if best_coeff.any() != False:
         print(f"Sphere equation: (x-{best_coeff[0]:.2f})^2 + (y-{best_coeff[1]:.2f})^2 + (z-{best_coeff[2]:.2f})^2 = {best_coeff[3]:.2f}^2")
     else:
         print("No sphere detected.")
