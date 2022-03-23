@@ -88,7 +88,7 @@ if __name__ == "__main__":
             best_coeff = coeff
             print(f"Update: Fitness = {best_fitness:.4f}, Inlier_dist = {best_inlier_dist:.4f}")
 
-    if best_coeff is not None:
+    if best_coeff != None:
         print(f"Sphere equation: (x-{best_coeff[0]:.2f})^2 + (y-{best_coeff[1]:.2f})^2 + (z-{best_coeff[2]:.2f})^2 = {best_coeff[3]:.2f}^2")
     else:
         print("No sphere detected.")
