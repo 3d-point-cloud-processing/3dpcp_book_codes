@@ -1,3 +1,6 @@
 [submodule "3rdparty/Open3D"]
 	path = 3rdparty/Open3D
 	url = https://github.com/intel-isl/Open3D
+[submodule "data"]
+	path = data
+	url = https://github.com/3d-point-cloud-processing/3dpcp_book_data
