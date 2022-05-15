@@ -30,7 +30,7 @@ reg.set_th_ratio( 0.999 )
 pcd_reg = reg.registration()
 
 print("# of iterations: ", len(reg.d))
-print("Registration ettor [m/pts.]:", reg.d[-1] )
+print("Registration error [m/pts.]:", reg.d[-1] )
 print("Final transformation \n", reg.final_trans )
 
 pcd_reg.paint_uniform_color([1.0,0.0,0.0])
