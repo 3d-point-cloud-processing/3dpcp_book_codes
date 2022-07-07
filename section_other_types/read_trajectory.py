@@ -6,8 +6,7 @@ class CameraPose:
         self.metadata = meta
         self.pose = mat
     def __str__(self):
-        return 'Metadata : ' + ' '.join(map(str, self.metadata)) + '\n' + \
-            "Pose : " + "\n" + np.array_str(self.pose)
+        return 'Metadata : ' + ' '.join(map(str, self.metadata)) + "\nPose : \n" + np.array_str(self.pose)
 
 def read_trajectory(filename):
     traj = []
