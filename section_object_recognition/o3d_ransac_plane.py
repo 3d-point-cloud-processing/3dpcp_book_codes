@@ -3,7 +3,7 @@ import copy
 
 import open3d as o3d
 
-pcd = o3d.io.read_point_cloud("../data/tabletop_scene1.ply")
+pcd = o3d.io.read_point_cloud("../data/tabletop_scene.ply")
 o3d.visualization.draw_geometries([pcd], 
                                   zoom=0.459,
 			                      front=[ 0.349, 0.063, -0.934 ],

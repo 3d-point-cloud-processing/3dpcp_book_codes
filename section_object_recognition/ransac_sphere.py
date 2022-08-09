@@ -59,7 +59,7 @@ def EvaluateSphereCoefficient( pcd, coeff, distance_th=0.01 ):
 
 if __name__ == "__main__":
     # データ読み込み
-    pcd = o3d.io.read_point_cloud("../data/tabletop_scene1_segment.ply")
+    pcd = o3d.io.read_point_cloud("../data/tabletop_scene_segment.ply")
     np_pcd = np.asarray(pcd.points)
     o3d.visualization.draw_geometries([pcd])
 
